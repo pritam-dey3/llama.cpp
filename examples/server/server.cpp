@@ -1137,12 +1137,13 @@ struct server_context {
             system_tokens = ::llama_tokenize(ctx, system_prompt, true);
 
             llama_batch_clear(batch);
+            const int32_t n_batch = llama_n_batch(ctx);
+            const int32_t batch_size = std::max(n_batch, (int)system_tokens.size());
+            batch = llama_batch_init(batch_size, 0, 1);
 
             for (int i = 0; i < (int)system_tokens.size(); ++i) {
                 llama_batch_add(batch, system_tokens[i], i, { 0 }, false);
             }
-
-            const int32_t n_batch = llama_n_batch(ctx);
 
             for (int32_t i = 0; i < batch.n_tokens; i += n_batch) {
                 const int32_t n_tokens = std::min(params.n_batch, batch.n_tokens - i);
